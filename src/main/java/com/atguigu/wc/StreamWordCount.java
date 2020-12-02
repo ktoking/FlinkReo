@@ -24,7 +24,6 @@ public class StreamWordCount {
         //从socket文本流读取数据
         DataStream<String> inputDataStream = env.socketTextStream(host,port);
 
-
         //基于数据流转化计算
         DataStream<Tuple2<String, Integer>> resultStream = inputDataStream.flatMap(new WordCount.MyFlatMapper())
                 .keyBy(0)
