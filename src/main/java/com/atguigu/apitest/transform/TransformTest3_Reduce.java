@@ -24,6 +24,7 @@ public class TransformTest3_Reduce {
         });
 
 
+
         //分组
         KeyedStream<SensorReading, Tuple> keyedStream = dataStream.keyBy("id");
 
