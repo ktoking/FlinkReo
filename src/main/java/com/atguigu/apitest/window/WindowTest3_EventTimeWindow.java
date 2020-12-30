@@ -4,6 +4,9 @@ import com.atguigu.beans.SensorReading;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
+import org.apache.flink.streaming.api.windowing.time.Time;
 
 public class WindowTest3_EventTimeWindow {
 
@@ -20,6 +23,21 @@ public class WindowTest3_EventTimeWindow {
         DataStream<SensorReading> dataStream = inputStream.map((e) -> {
             final String[] split = e.split(",");
             return new SensorReading(split[0], new Long(split[1]), new Double(split[2]));
+        })
+                //升序数据设置事件时间和watermark
+//                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<SensorReading>() {
+//                    @Override
+//                    public long extractAscendingTimestamp(SensorReading sensorReading) {
+//                        return sensorReading.getTimeStamp()*1000L;
+//                    }
+//                })
+                // 乱序数据设计时间戳和watermark
+                .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<SensorReading>(Time.seconds(2)) { //定义最大乱序程度
+            @Override
+            public long extractTimestamp(SensorReading sensorReading) { //提取时间戳
+                return sensorReading.getTimeStamp()*1000L;
+            }
         });
+
     }
 }
