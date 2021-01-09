@@ -19,7 +19,6 @@ public class WindowTest3_EventTimeWindow {
         //从文件读取数据
         DataStream<String> inputStream=env.readTextFile("G:\\idea_repo\\FlinkTutorial\\src\\main\\resources\\sensor.txt");
 
-
         //lambda表达式简化
         DataStream<SensorReading> dataStream = inputStream.map((e) -> {
             final String[] split = e.split(",");
