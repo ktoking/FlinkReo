@@ -3,6 +3,7 @@ package com.atguigu.apitest.window;
 import com.atguigu.beans.SensorReading;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
@@ -17,7 +18,7 @@ public class WindowTest3_EventTimeWindow {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         //从文件读取数据
-        DataStream<String> inputStream=env.readTextFile("G:\\idea_repo\\FlinkTutorial\\src\\main\\resources\\sensor.txt");
+        DataStream<String> inputStream=env.readTextFile("D:\\sorf\\ideaReo\\FlinkReo\\src\\main\\resources\\sensor.txt");
 
         //lambda表达式简化
         DataStream<SensorReading> dataStream = inputStream.map((e) -> {
@@ -39,5 +40,11 @@ public class WindowTest3_EventTimeWindow {
             }
         });
 
+
+        //统计15秒内温度最小值，基于事件的时间开创聚合
+        DataStream<SensorReading> minTemperature = dataStream.keyBy("id").timeWindow(Time.seconds(5)).minBy("temperature");
+        minTemperature.print();
+
+        env.execute();
     }
 }
