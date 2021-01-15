@@ -8,6 +8,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.table.expressions.Sin;
+import org.apache.flink.util.OutputTag;
 
 public class WindowTest3_EventTimeWindow {
 
@@ -40,10 +42,17 @@ public class WindowTest3_EventTimeWindow {
             }
         });
 
+        OutputTag<SensorReading> outputTag = new OutputTag<SensorReading>("late"){};
 
         //统计15秒内温度最小值，基于事件的时间开创聚合
-        DataStream<SensorReading> minTemperature = dataStream.keyBy("id").timeWindow(Time.seconds(5)).minBy("temperature");
-        minTemperature.print();
+        SingleOutputStreamOperator<SensorReading> minTemperature = dataStream.keyBy("id")
+                .timeWindow(Time.seconds(5))
+                .allowedLateness(Time.minutes(1))
+                .sideOutputLateData(outputTag)
+                .minBy("temperature");
+
+        minTemperature.print("mintemp");
+        minTemperature.getSideOutput(outputTag).print("late");
 
         env.execute();
     }
