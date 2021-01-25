@@ -8,6 +8,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.Tumble;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
@@ -39,7 +40,17 @@ public class TableTest5_TimeAndWindow {
 
         // 4. 将流转化为表（指定处理时间xx.proctime）
 //        Table dataTable = tableEnv.fromDataStream(dataStream, "id , timeStamp as ts , temperature as temp , pt.proctime");
-        Table dataTable = tableEnv.fromDataStream(dataStream, "id , timeStamp.rowtime as ts , temperature as temp");
+//        Table dataTable = tableEnv.fromDataStream(dataStream, "id , timeStamp.rowtime as ts , temperature as temp");
+        Table dataTable = tableEnv.fromDataStream(dataStream, "id , timeStamp as ts , temperature as temp , rt.rowtime");
+
+        // 5. 窗口操作
+        // group Window
+        // table API
+        Table resultTable = dataTable.window(Tumble.over("10.seconds").on("rt").as("tw"))
+                .groupBy("id,tw")
+                .select("id,id.count,temp.avg,tw.end");
+
+
         //打印表结构
         dataTable.printSchema();
         tableEnv.toAppendStream(dataTable,Row.class).print();
