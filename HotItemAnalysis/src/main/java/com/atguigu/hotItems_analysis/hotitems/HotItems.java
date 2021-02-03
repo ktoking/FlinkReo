@@ -97,7 +97,6 @@ public class HotItems {
     // 自定义全窗口函数
     public static class WindowItemCountResult implements WindowFunction<Long,ItemViewCount, Tuple, TimeWindow> {
 
-
         @Override
         public void apply(Tuple tuple, TimeWindow timeWindow, Iterable<Long> iterable, Collector<ItemViewCount> collector) throws Exception {
             Long itemId = tuple.getField(0);
