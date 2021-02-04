@@ -156,6 +156,7 @@ public class HotItems {
             sb.append("============================\n\n");
 
             out.collect(sb.toString());
+
         }
     }
 }
