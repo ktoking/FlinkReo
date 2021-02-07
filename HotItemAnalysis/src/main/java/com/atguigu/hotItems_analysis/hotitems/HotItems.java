@@ -3,7 +3,6 @@ package com.atguigu.hotItems_analysis.hotitems;
 import com.atguigu.hotItems_analysis.beans.ItemViewCount;
 import com.atguigu.hotItems_analysis.beans.UserBehavior;
 import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -11,7 +10,6 @@ import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
@@ -20,6 +18,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,7 +141,7 @@ public class HotItems {
             //将排名信息格式化成String,方便打印输出
             StringBuilder sb=new StringBuilder();
             sb.append("===================================");
-            sb.append("窗口结束时间:").append(new TimeStamp(timestamp-1)).append("\n");
+            sb.append("窗口结束时间:").append(new Timestamp(timestamp-1)).append("\n");
 
             // 遍历列表,取出topN
             for (int i = 0; i < Math.min(topN,itemViewCounts.size()); i++) {
