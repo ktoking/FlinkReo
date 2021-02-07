@@ -18,7 +18,6 @@ public class MyTest {
     public static final String inet="http://39.96.86.4:8239/gw-kkk-test1/getIp";
 
 
-
     public static void main(String[] args) throws InterruptedException, IOException {
         // 目标网址，会返回发起请求的ip
         URL url1 = new URL(inet);
