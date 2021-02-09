@@ -23,6 +23,7 @@
     </build>
     <modules>
         <module>HotItemAnalysis</module>
+        <module>NetworkFlowAnalysis</module>
     </modules>
 
     <dependencies>
