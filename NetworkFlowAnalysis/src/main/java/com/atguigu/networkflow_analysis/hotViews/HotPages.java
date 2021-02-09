@@ -23,6 +23,7 @@ import java.awt.*;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class HotPages {
 
@@ -48,7 +49,9 @@ public class HotPages {
 
         // 2. 分组开窗聚合
         SingleOutputStreamOperator<PageViewCount> windowAggStream = dataStream.filter(e -> {
-            return e.getMethod().equals("GET");
+            String regex="^((?!\\.(css|js|png|ico)$).)*$";  //正则表达式，过滤css|js|png|ico资源文件
+            return Pattern.matches(regex,e.getUrl());
+//            return e.getMethod().equals("GET");
         })     // 过滤GET请求
                 .keyBy(ApacheLogEvent::getUrl)      // 按照URL分组
                 .timeWindow(Time.minutes(10), Time.seconds(5))
