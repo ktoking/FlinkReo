@@ -12,14 +12,13 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
-import java.awt.*;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +46,9 @@ public class HotPages {
             }
         });
 
+        // 定义一个侧输出流
+        OutputTag<ApacheLogEvent> late = new OutputTag<ApacheLogEvent>("late"){};
+
         // 2. 分组开窗聚合
         SingleOutputStreamOperator<PageViewCount> windowAggStream = dataStream.filter(e -> {
             String regex="^((?!\\.(css|js|png|ico)$).)*$";  //正则表达式，过滤css|js|png|ico资源文件
@@ -55,7 +57,12 @@ public class HotPages {
         })     // 过滤GET请求
                 .keyBy(ApacheLogEvent::getUrl)      // 按照URL分组
                 .timeWindow(Time.minutes(10), Time.seconds(5))
+                .allowedLateness(Time.minutes(1))   // 允许迟到数据1分钟
+                .sideOutputLateData(late)           // 定义侧输出流
                 .aggregate(new PageCountAgg(), new PageCountResult());
+
+        windowAggStream.print("agg");
+        windowAggStream.getSideOutput(late).print("late");
 
         // 3. 收集同一窗口count数据，排序输出
         DataStream<String> resultStream = windowAggStream.keyBy(PageViewCount::getWindowEnd)
