@@ -111,7 +111,6 @@ public class UvWithBloomFilter {
             jedis.close();
         }
 
-
         @Override
         public void process(Context context, Iterable<UserBehavior> iterable, Collector<PageViewCount> collector) throws Exception {
             // 将位图和窗口的count全部存在redis
